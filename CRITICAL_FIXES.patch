@@ -1,0 +1,87 @@
+# Critical Bug Fixes for _kolonaoperak-cz/functions.php
+# Apply these fixes immediately to resolve PHP 8.2+ compatibility issues
+#
+# To apply this patch:
+# 1. Backup the original file
+# 2. Apply changes manually or use the fixed version below
+
+# ============================================================================
+# FIX #1: Remove invalid import (Line 3)
+# ============================================================================
+# BEFORE:
+# <?php
+#
+# use function PHPSTORM_META\map;
+#
+# function velikostramu($string)
+
+# AFTER:
+# <?php
+#
+# function velikostramu($string)
+
+# ============================================================================
+# FIX #2: Replace utf8_encode() in nazevkellys() (Lines 1144-1148)
+# ============================================================================
+# BEFORE:
+#   if (mb_detect_encoding($nazev) === 'UTF-8') {
+#     $nazev = mb_convert_case(utf8_encode($nazev), MB_CASE_TITLE, 'UTF-8');
+#   } else {
+#     $nazev = mb_convert_case($nazev, MB_CASE_TITLE, 'UTF-8');
+#   }
+
+# AFTER:
+#   if (!mb_check_encoding($nazev, 'UTF-8')) {
+#     $nazev = mb_convert_encoding($nazev, 'UTF-8', mb_detect_encoding($nazev, ['ISO-8859-1', 'Windows-1252', 'UTF-8'], true));
+#   }
+#   $nazev = mb_convert_case($nazev, MB_CASE_TITLE, 'UTF-8');
+
+# ============================================================================
+# FIX #3: Replace utf8_encode() in vyrobci() (Lines 1306-1310)
+# ============================================================================
+# BEFORE:
+#   if (mb_detect_encoding($string) === 'UTF-8') {
+#     $string = mb_convert_case(utf8_encode($string), MB_CASE_TITLE, 'UTF-8');
+#   } else {
+#     $string = mb_convert_case($string, MB_CASE_TITLE, 'UTF-8');
+#   }
+
+# AFTER:
+#   if (!mb_check_encoding($string, 'UTF-8')) {
+#     $string = mb_convert_encoding($string, 'UTF-8', mb_detect_encoding($string, ['ISO-8859-1', 'Windows-1252', 'UTF-8'], true));
+#   }
+#   $string = mb_convert_case($string, MB_CASE_TITLE, 'UTF-8');
+
+# ============================================================================
+# FIX #4: Remove dead code in strip_velikost_variant() (Line 1342)
+# ============================================================================
+# BEFORE:
+#   preg_match('/(.*)Velikost: (.*)/', $productname, $matches);
+#   if (count($matches) == 3) {
+#     return trim(str_replace('cm', '', $matches[1]));
+#     return trim($matches[1]);
+#   }
+
+# AFTER:
+#   preg_match('/(.*)Velikost: (.*)/', $productname, $matches);
+#   if (count($matches) == 3) {
+#     return trim(str_replace('cm', '', $matches[1]));
+#   }
+
+# ============================================================================
+# SUMMARY
+# ============================================================================
+# Lines to modify:
+#   - Line 3: Delete "use function PHPSTORM_META\map;"
+#   - Lines 1144-1148: Replace utf8_encode logic
+#   - Lines 1306-1310: Replace utf8_encode logic
+#   - Line 1342: Delete duplicate return statement
+#
+# Testing:
+#   - Test on PHP 8.2+ environment
+#   - Verify no deprecation warnings
+#   - Test with products containing special characters (Czech accents)
+#   - Test all WP All Import configurations
+#
+# Estimated time: 30 minutes
+# Risk level: LOW (fixes only, no functionality changes)
