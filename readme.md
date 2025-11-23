@@ -1,6 +1,11 @@
-# SCRIPTS
+# IMPORT SCRIPTS
 scp ./_bikeleasing-sk/functions.php root@147.93.63.203:/home/user/web/bikeleasing.sk/public_html/wp-content/uploads/wpallimport
 scp ./_kolonaoperak-cz/functions.php root@147.93.63.203:/home/user/web/kolonaoperak.cz/public_html/wp-content/uploads/wpallimport
+
+# EXPORT SCRIPTS
+scp ./_bikeleasing-sk/exports/functions.php root@147.93.63.203:/home/user/web/bikeleasing.sk/public_html/wp-content/uploads/wpallexport
+scp ./_kolonaoperak-cz/exports/functions.php root@147.93.63.203:/home/user/web/kolonaoperak.cz/public_html/wp-content/uploads/wpallexport
+
 
 # ctm bikes
 python3 xml_filter.py ./ctm-bikes.xml ./ctm-bikes-filtered.xml "//Item[Category1[not(contains(.,'Kids'))] and MOCCZK > 30000 and Disposition = 'true']"
@@ -26,6 +31,9 @@ python3 xml_to_excel.py ./schindler/schindler-sk-filtered.xml ./schindler/schind
 
 # Schindler cz
 python3 xml_filter.py ./schindler/schindler-cz.xml ./schindler/schindler-cz-filtered.xml '//SHOPITEM[CUSTOMER_PRICE[1] >= 50000 and STOCK_ITEM[1] > 0 and (starts-with(CATEGORYTEXT[1], "Jízdní kola") or starts-with(CATEGORYTEXT[1], "Elektrokola"))]'
+
+python3 xml_filter.py ./schindler/schindler-cz.xml ./schindler/schindler-cz-filtered-2.xml '//SHOPITEM[CUSTOMER_PRICE[1] >= 50000 and (STOCK_ITEM[1] > 0 or sum(WAREHOUSES/WAREHOUSE/QUANTITY/VALUE) > 0) and (starts-with(CATEGORYTEXT[1], "Jízdní kola") or starts-with(CATEGORYTEXT[1], "Elektrokola"))]'
+
 python3 xml_to_excel.py ./schindler/schindler-cz-filtered.xml ./schindler/schindler
 
 # Bikeicon sk
