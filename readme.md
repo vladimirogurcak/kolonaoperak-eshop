@@ -30,7 +30,7 @@ scp ./_ayvensbike-cz/wpallexport/functions.php root@147.93.63.203:/home/user/web
 
 
 ### ctm bikes
-python3 xml_filter.py ./ctm-bikes.xml ./ctm-bikes-filtered.xml "//Item[Category1[not(contains(.,'Kids'))] and MOCCZK > 30000 and Disposition = 'true']"
+python3 xml_filter.py ./ctm-bikes.xml ./ctm-bikes-filtered.xml "//Item[Category1[not(contains(.,'Kids'))] and MOCCZK > 50000 and Disposition = 'true']"
 python3 xml_to_excel.py ./ctm-bikes/ctm-bikes-filtered.xml ./ctm-bikes/ctm-bikes
 
 ### radotin
