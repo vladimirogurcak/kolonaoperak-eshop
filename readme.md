@@ -65,3 +65,6 @@ python3 xml_to_excel.py ./bikeicon/bikeicon-sk-filtered.xml ./bikeicon/bikeicon
 ### Bikeicon cz
 python3 xml_filter.py ./bikeicon/bikeicon-cz.xml ./bikeicon/bikeicon-cz-filtered.xml '//SHOPITEM[CUSTOMER_PRICE[1] >= 50000 and STOCK_ITEM[1] > 0 and (starts-with(CATEGORYTEXT[1], "Jízdní kola") or starts-with(CATEGORYTEXT[1], "Elektrokola"))]'
 python3 xml_to_excel.py ./bikeicon/bikeicon-cz-filtered.xml ./bikeicon/bikeicon
+
+### Kellys sk
+python3 ./kellys/kellys_to_excel.py ./kellys/kellys.xml ./kellys/kellys

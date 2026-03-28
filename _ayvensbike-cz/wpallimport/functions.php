@@ -1726,4 +1726,108 @@ function schindler_manufacturer($manufacturer)
     }
 }
 
+# Kellys
+function kellys_title(string $title, string $size = '', ?string $color = null): string {
+
+    // 1. Strip "KELLYS " prefix (case-insensitive).
+    $base = preg_replace( '/^KELLYS\s+/i', '', trim( $title ) );
+
+    // 2. Strip the size token (whole word).
+    //    The size column may contain values like "M / L" or "S (500mm)" — extract only
+    //    the leading size letters (e.g. "M", "S", "XL") before any space/slash/paren.
+    $size = trim( $size );
+    if ( $size !== '' ) {
+        $base_size = preg_replace( '/[\s\/\(].*$/u', '', $size );
+        $base_size = trim( $base_size );
+        if ( $base_size !== '' ) {
+            $base = preg_replace( '/\b' . preg_quote( $base_size, '/' ) . '\b/', '', $base );
+        }
+    }
+
+    // 3. Strip wheel-size patterns, e.g. 27.5", 29", 29"/27.5".
+    $base = preg_replace( '/\d+(?:[.,]\d+)?"\s*(?:\/\s*\d+(?:[.,]\d+)?")?/', '', $base );
+
+    // 4. Strip battery-capacity patterns, e.g. 725Wh, 820Wh.
+    $base = preg_replace( '/\d+\s*Wh/i', '', $base );
+
+    // 5. Normalise whitespace.
+    $base = trim( preg_replace( '/\s+/', ' ', $base ) );
+
+    // 6. If no colour, return the cleaned model string as-is.
+    $color = trim( $color ?? '' );
+    if ( $color === '' ) {
+        return $base;
+    }
+
+    $color_words = preg_split( '/\s+/', $color );
+
+    if ( count( $color_words ) === 1 ) {
+        // Single-word colour (e.g. "Grey", "White", "Anthracite", "Black").
+        //
+        // Look for the colour word at the end of the stripped title and — if it is
+        // preceded by a mixed-case modifier word like "Mocha" or "Ivory" (not an
+        // all-caps abbreviation like "SH" or a single letter like "P") — include that
+        // modifier in the colour suffix.
+        $pattern = '/(?:([A-Z][a-z]+)\s+)?(' . preg_quote( $color_words[0], '/' ) . ')\s*$/i';
+
+        if ( preg_match( $pattern, $base, $matches, PREG_OFFSET_CAPTURE ) ) {
+            $model      = trim( substr( $base, 0, $matches[0][1] ) );
+            $preceding  = $matches[1][0] ?? '';
+            $color_word = $matches[2][0];
+
+            $color_suffix = ( $preceding !== '' )
+                ? ucwords( strtolower( $preceding ) ) . ' ' . ucwords( strtolower( $color_word ) )
+                : ucwords( strtolower( $color_word ) );
+        } else {
+            // Colour word not present in the title at all (e.g. "Black" on Theos F100 SH).
+            $model        = $base;
+            $color_suffix = ucwords( strtolower( $color ) );
+        }
+
+    } else {
+        // Multi-word colour (e.g. "Magic green", "Steel blue", "Graphite borealis").
+        // Find the full phrase at the end of the stripped title.
+        $phrase_pattern = '/' . implode( '\s+', array_map(
+            fn( $w ) => preg_quote( $w, '/' ),
+            $color_words
+        ) ) . '\s*$/i';
+
+        if ( preg_match( $phrase_pattern, $base, $matches, PREG_OFFSET_CAPTURE ) ) {
+            $model        = trim( substr( $base, 0, $matches[0][1] ) );
+            $color_suffix = ucwords( strtolower( $matches[0][0] ) );
+        } else {
+            $model        = $base;
+            $color_suffix = ucwords( strtolower( $color ) );
+        }
+    }
+
+    return $model . ' - ' . $color_suffix;
+}
+
+function kellys_bike_type(string $product_type): string {
+    return stripos( $product_type, 'E-BIKE' ) !== false ? 'Elektrokola' : 'Jízdní kola';
+}
+
+function kellys_price($price, $currency) {
+    //validate inputs
+    if (empty($price)) {
+        error_log('Price must not be empty.');
+        return '';
+    }
+
+    if (empty($currency)) {
+        error_log('Currency must not be empty.');
+        return '';
+    }
+
+    $kellys_price = str_replace(mb_strtolower($currency), '', mb_strtolower($price));
+    $kellys_price = trim($kellys_price);
+
+    return round((float) $kellys_price);
+}
+
+function kellys_frame_size(string $frame_size): string {
+    return trim($frame_size);
+}
+
 ?>
